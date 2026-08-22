@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FaceAttend — Office Kiosk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0b0f;
+      --surface:   #12141a;
+      --surface2:  #1a1d26;
+      --border:    #252836;
+      --accent:    #6c5ce7;
+      --accent2:   #a29bfe;
+      --green:     #00cec9;
+      --green2:    #00b894;
+      --red:       #e17055;
+      --orange:    #fdcb6e;
+      --text:      #f8f9fa;
+      --text2:     #adb5bd;
+      --text3:     #6c757d;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    .kiosk {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      grid-template-rows: 70px 1fr 100px;
+      height: 100vh;
+      gap: 0;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    .kiosk-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+    .logo-icon { font-size: 1.8rem; }
+    .logo span { color: var(--accent2); }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .clock {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+    }
+    .date-str {
+      font-size: 0.85rem;
+      color: var(--text2);
+      text-align: right;
+    }
+
+    /* ── Camera section ─────────────────────────────────── */
+    .cam-section {
+      position: relative;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #kiosk-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cam-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Face frame corners */
+    .face-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 260px;
+      height: 300px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .face-frame::before,
+    .face-frame::after,
+    .face-frame .corner-br,
+    .face-frame .corner-bl {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-color: var(--accent2);
+      border-style: solid;
+      transition: border-color 0.3s;
+    }
+
+    .face-frame::before  { top: 0;    left: 0;  border-width: 3px 0 0 3px; }
+    .face-frame::after   { top: 0;    right: 0; border-width: 3px 3px 0 0; }
+    .face-frame .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+    .face-frame .corner-bl { bottom: 0; left: 0;  border-width: 0 0 3px 3px; }
+
+    .face-frame.detecting { --fc: var(--orange); }
+    .face-frame.detecting::before,
+    .face-frame.detecting::after,
+    .face-frame.detecting .corner-br,
+    .face-frame.detecting .corner-bl {
+      border-color: var(--orange);
+      animation: pulse-frame 1s ease-in-out infinite;
+    }
+
+    .face-frame.success::before,
+    .face-frame.success::after,
+    .face-frame.success .corner-br,
+    .face-frame.success .corner-bl {
+      border-color: var(--green);
+      box-shadow: 0 0 16px var(--green);
+    }
+
+    .face-frame.fail::before,
+    .face-frame.fail::after,
+    .face-frame.fail .corner-br,
+    .face-frame.fail .corner-bl {
+      border-color: var(--red);
+    }
+
+    @keyframes pulse-frame {
+      0%, 100% { opacity: 0.6; }
+      50%       { opacity: 1; }
+    }
+
+    /* Scanning line */
+    .scan-line {
+      position: absolute;
+      left: calc(50% - 130px);
+      width: 260px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent) 20%, var(--accent2) 50%, var(--accent) 80%, transparent);
+      animation: scan-move 2.5s ease-in-out infinite;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .scanning .scan-line { opacity: 1; }
+
+    @keyframes scan-move {
+      0%   { top: calc(50% - 150px); }
+      100% { top: calc(50% + 150px); }
+    }
+
+    /* Cam status label */
+    .cam-label {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text2);
+      white-space: nowrap;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Side panel ─────────────────────────────────────── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Result card */
+    .result-card {
+      flex: 0 0 auto;
+      padding: 28px 24px;
+      border-bottom: 1px solid var(--border);
+      min-height: 230px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: background 0.5s;
+    }
+
+    .result-card.idle    { background: var(--surface); }
+    .result-card.success { background: rgba(0, 206, 201, 0.08); }
+    .result-card.fail    { background: rgba(225, 112, 85, 0.08); }
+    .result-card.waiting { background: rgba(108, 92, 231, 0.06); }
+
+    .result-icon {
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+      transition: transform 0.3s;
+    }
+
+    .result-card.success .result-icon { animation: pop-in 0.4s cubic-bezier(0.17, 0.67, 0.27, 1.53); }
+
+    @keyframes pop-in {
+      0%   { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+
+    .result-name {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .result-code {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-bottom: 10px;
+    }
+
+    .result-event {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+
+    .event-in  { background: rgba(0, 184, 148, 0.2); color: var(--green2); }
+    .event-out { background: rgba(225, 112, 85, 0.2);  color: var(--red); }
+
+    .result-time {
+      font-size: 0.8rem;
+      color: var(--text3);
+    }
+
+    .conf-bar-wrap { margin-top: 14px; }
+    .conf-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text3);
+      margin-bottom: 5px;
+    }
+    .conf-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .conf-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--green);
+      transition: width 0.5s ease;
+    }
+
+    .result-msg {
+      font-size: 0.85rem;
+      color: var(--text2);
+      margin-top: 8px;
+    }
+
+    /* Manual trigger */
+    .manual-btn {
+      margin: 0 24px 0;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .manual-btn:hover:not(:disabled) { background: var(--accent2); color: #000; }
+    .manual-btn:active:not(:disabled) { transform: scale(0.97); }
+    .manual-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Mode toggle */
+    .mode-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text3);
+    }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 999px;
+      transition: background 0.3s;
+    }
+    .toggle input:checked ~ .toggle-track { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.3s;
+    }
+    .toggle input:checked ~ .toggle-thumb { left: 21px; }
+
+    /* Recent log */
+    .log-section {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-title {
+      padding: 14px 24px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-top: 1px solid var(--border);
+    }
+
+    .log-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 24px 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      animation: slide-in 0.3s ease;
+    }
+
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .log-dot.in  { background: var(--green); }
+    .log-dot.out { background: var(--red); }
+    .log-dot.err { background: var(--text3); }
+
+    .log-info { flex: 1; min-width: 0; }
+    .log-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .log-sub {
+      font-size: 0.72rem;
+      color: var(--text3);
+    }
+
+    .log-time {
+      font-size: 0.72rem;
+      color: var(--text3);
+      flex-shrink: 0;
+    }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    .kiosk-footer {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-hint {
+      font-size: 0.85rem;
+      color: var(--text3);
+    }
+
+    .footer-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .status-text {
+      font-size: 0.82rem;
+      color: var(--text2);
+    }
+
+    .counter-group {
+      display: flex;
+      gap: 24px;
+    }
+    .counter-item {
+      text-align: center;
+    }
+    .counter-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .counter-lbl {
+      font-size: 0.68rem;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Error banner */
+    .err-banner {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(225, 112, 85, 0.95);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 999;
+      display: none;
+    }
+
+    /* Admin pin overlay */
+    .admin-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .admin-overlay.show { display: flex; }
+    .admin-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 340px;
+      text-align: center;
+    }
+    .admin-box h2 { margin-bottom: 8px; font-size: 1.2rem; }
+    .admin-box p  { font-size: 0.85rem; color: var(--text2); margin-bottom: 24px; }
+    .pin-input {
+      width: 100%;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1.1rem;
+      text-align: center;
+      letter-spacing: 0.3em;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    .pin-input:focus { border-color: var(--accent); }
+    .admin-btns { display: flex; gap: 10px; }
+    .btn-cancel {
+      flex: 1; padding: 12px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text2); cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-confirm {
+      flex: 1; padding: 12px; border-radius: 10px;
+      background: var(--accent); border: none;
+      color: #fff; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    }
+
+    /* Fullscreen hint */
+    .fs-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text3); padding: 6px 12px;
+      border-radius: 8px; cursor: pointer; font-size: 0.78rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .fs-btn:hover { border-color: var(--accent2); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="kiosk" id="kiosk">
+
+  <!-- Header -->
+  <header class="kiosk-header">
+    <div class="logo">
+      <div class="logo-icon">🎯</div>
+      Face<span>Attend</span> &nbsp;·&nbsp; <span style="font-weight:400;font-size:1rem;color:var(--text2)">Office Kiosk</span>
+    </div>
+    <div class="header-meta">
+      <div>
+        <div class="clock" id="kiosk-clock">--:--:--</div>
+        <div class="date-str" id="kiosk-date">Loading…</div>
+      </div>
+      <button class="fs-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+      <button class="fs-btn" onclick="openAdminOverlay()">⚙ Admin</button>
+    </div>
+  </header>
+
+  <!-- Camera feed -->
+  <div class="cam-section scanning" id="cam-section">
+    <video id="kiosk-video" playsinline muted autoplay></video>
+    <div class="cam-overlay">
+      <div class="face-frame" id="face-frame">
+        <div class="corner-br"></div>
+        <div class="corner-bl"></div>
+      </div>
+      <div class="scan-line"></div>
+    </div>
+    <div class="cam-label" id="cam-label">Starting camera…</div>
+  </div>
+
+  <!-- Side panel -->
+  <div class="side-panel">
+
+    <!-- Result -->
+    <div class="result-card idle" id="result-card">
+      <div class="result-icon" id="result-icon">📷</div>
+      <div class="result-name" id="result-name">Ready</div>
+      <div class="result-code" id="result-code">Position your face in the frame</div>
+      <div class="conf-bar-wrap" id="conf-wrap" style="display:none">
+        <div class="conf-label"><span>Confidence</span><span id="conf-pct">0%</span></div>
+        <div class="conf-track"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
+      </div>
+      <div class="result-msg" id="result-msg"></div>
+    </div>
+
+    <!-- Manual button -->
+    <div style="padding:16px 24px">
+      <button class="manual-btn" id="manual-btn" onclick="captureAndMark()">
+        📸 &nbsp;Mark Attendance Now
+      </button>
+    </div>
+
+    <!-- Auto mode toggle -->
+    <div class="mode-row">
+      <label class="toggle" id="auto-toggle-wrap">
+        <input type="checkbox" id="auto-toggle" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span>Auto-scan every <strong id="interval-label">5 s</strong></span>
+    </div>
+
+    <!-- Log -->
+    <div class="log-section">
+      <div class="log-title">Recent Activity</div>
+      <div class="log-list" id="log-list"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="kiosk-footer">
+    <div class="footer-hint">📍 Office Entrance · Scan your face to check in/out</div>
+    <div class="counter-group">
+      <div class="counter-item">
+        <div class="counter-val" id="cnt-checkin" style="color:var(--green)">0</div>
+        <div class="counter-lbl">Check-ins</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-val" id="cnt-checkout" style="color:var(--red)">0</div>
+        <div class="counter-lbl">Check-outs</div>
+      </div>
+      <div class="counter-item">
+        <div class="counter-val" id="cnt-total">0</div>
+        <div class="counter-lbl">Total Today</div>
+      </div>
+    </div>
+    <div class="footer-status">
+      <div class="status-dot" id="status-dot"></div>
+      <div class="status-text" id="status-text">Connecting…</div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Error banner -->
+<div class="err-banner" id="err-banner"></div>
+
+<!-- Admin overlay -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-box">
+    <h2>🔐 Admin Access</h2>
+    <p>Enter the admin password to access settings or exit kiosk mode.</p>
+    <input class="pin-input" type="password" id="admin-pin" placeholder="Password" maxlength="30">
+    <div id="pin-error" style="color:var(--red);font-size:0.8rem;margin-bottom:12px;min-height:18px"></div>
+    <div class="admin-btns">
+      <button class="btn-cancel" onclick="closeAdminOverlay()">Cancel</button>
+      <button class="btn-confirm" onclick="verifyAdminPin()">Enter Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Config ──────────────────────────────────────────────────────── */
+const API_BASE        = '/api';
+const SCAN_INTERVAL_S = 5;          // auto-scan every N seconds
+const RESULT_CLEAR_S  = 4;          // clear result panel after N seconds
+const ADMIN_PASSWORD  = 'admin123'; // must match backend ADMIN_PASSWORD
+
+/* ── State ───────────────────────────────────────────────────────── */
+let token         = null;
+let videoStream   = null;
+let autoTimer     = null;
+let resultTimer   = null;
+let cntCheckIn    = 0;
+let cntCheckOut   = 0;
+let isProcessing  = false;
+
+/* ── DOM refs ────────────────────────────────────────────────────── */
+const video      = document.getElementById('kiosk-video');
+const camLabel   = document.getElementById('cam-label');
+const faceFrame  = document.getElementById('face-frame');
+const camSection = document.getElementById('cam-section');
+const resultCard = document.getElementById('result-card');
+const resultIcon = document.getElementById('result-icon');
+const resultName = document.getElementById('result-name');
+const resultCode = document.getElementById('result-code');
+const confWrap   = document.getElementById('conf-wrap');
+const confFill   = document.getElementById('conf-fill');
+const confPct    = document.getElementById('conf-pct');
+const resultMsg  = document.getElementById('result-msg');
+const logList    = document.getElementById('log-list');
+const manualBtn  = document.getElementById('manual-btn');
+const autoToggle = document.getElementById('auto-toggle');
+const statusDot  = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
+const errBanner  = document.getElementById('err-banner');
+
+/* ── Clock ───────────────────────────────────────────────────────── */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('kiosk-clock').textContent =
+    now.toLocaleTimeString('en-IN', { hour12: false });
+  document.getElementById('kiosk-date').textContent =
+    now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ── Auth ────────────────────────────────────────────────────────── */
+async function login() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: ADMIN_PASSWORD }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Login failed');
+    token = data.access_token;
+    setStatus('online', '✅ System online');
+    return true;
+  } catch (e) {
+    setStatus('error', '❌ Server offline');
+    showErr('Cannot connect to server: ' + e.message);
+    return false;
+  }
+}
+
+async function apiFetch(path, opts = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(opts.headers || {}),
+  };
+  const res = await fetch(`${API_BASE}${path}`, { ...opts, headers });
+  if (res.status === 401) {
+    // Re-login and retry once
+    await login();
+    const res2 = await fetch(`${API_BASE}${path}`, { ...opts, headers: { ...headers, Authorization: `Bearer ${token}` } });
+    return res2;
+  }
+  return res;
+}
+
+/* ── Camera ──────────────────────────────────────────────────────── */
+async function startCamera() {
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+    });
+    video.srcObject = videoStream;
+    await video.play();
+    camLabel.textContent = '🟢 Camera ready — look at the camera';
+    return true;
+  } catch (e) {
+    camLabel.textContent = '❌ Camera error: ' + e.message;
+    return false;
+  }
+}
+
+function captureFrame() {
+  if (video.readyState < 2) { // HAVE_CURRENT_DATA
+    console.warn('Video not ready for capture');
+    return null;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  if (canvas.width < 10 || canvas.height < 10) return null;
+
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const b64 = canvas.toDataURL('image/jpeg', 0.9);
+  console.log(`Captured frame: ${canvas.width}x${canvas.height}`);
+  return b64;
+}
+
+/* ── Mark attendance ─────────────────────────────────────────────── */
+async function captureAndMark() {
+  if (isProcessing) return;
+  isProcessing = true;
+  manualBtn.disabled = true;
+
+  faceFrame.className = 'face-frame detecting';
+  camLabel.textContent = '🔍 Scanning face…';
+
+  try {
+    const b64 = captureFrame();
+    if (!b64) {
+      showFail('Camera stream not ready yet');
+      isProcessing = false;
+      manualBtn.disabled = false;
+      return;
+    }
+
+    const res = await apiFetch('/attendance/mark', {
+      method: 'POST',
+      body: JSON.stringify({ image_base64: b64 }),
+    });
+
+    let data;
+    try { 
+      data = await res.json(); 
+    } catch { 
+      data = { results: [{ success: false, message: 'Invalid server response' }] }; 
+    }
+
+    // Backend returns { results: [ { success, message, ... } ] }
+    if (data.results && data.results.length > 0) {
+      const firstResult = data.results[0];
+      if (firstResult.success) {
+        showSuccess(firstResult);
+      } else {
+        showFail(firstResult.message || 'Face not recognised');
+      }
+    } else {
+      showFail('No face detected in the frame');
+    }
+  } catch (e) {
+    showFail('Connection error: ' + e.message);
+  }
+
+  isProcessing = false;
+  manualBtn.disabled = false;
+}
+
+/* ── UI states ───────────────────────────────────────────────────── */
+function showSuccess(data) {
+  clearTimeout(resultTimer);
+  faceFrame.className = 'face-frame success';
+  camSection.classList.add('scanning');
+
+  const isIn = data.event_type === 'CHECK_IN';
+  resultCard.className = 'result-card success';
+  resultIcon.textContent = isIn ? '✅' : '🏁';
+  resultName.textContent = data.employee_name || 'Employee';
+  resultCode.textContent = data.employee_code || '';
+
+  confWrap.style.display = 'block';
+  const pct = Math.round(data.confidence || 0);
+  confFill.style.width = pct + '%';
+  confFill.style.background = isIn ? 'var(--green)' : 'var(--red)';
+  confPct.textContent = pct + '%';
+
+  resultMsg.innerHTML = `<span class="result-event ${isIn ? 'event-in' : 'event-out'}">${isIn ? '▲ Check In' : '▼ Check Out'}</span>`;
+  if (data.timestamp) {
+    resultMsg.innerHTML += `<div class="result-time">${formatTime(data.timestamp)}</div>`;
+  }
+
+  camLabel.textContent = `✅ ${isIn ? 'Check-in' : 'Check-out'} recorded for ${data.employee_name}`;
+
+  // Update counters
+  if (isIn) {
+    cntCheckIn++;
+    document.getElementById('cnt-checkin').textContent = cntCheckIn;
+  } else {
+    cntCheckOut++;
+    document.getElementById('cnt-checkout').textContent = cntCheckOut;
+  }
+  const total = cntCheckIn + cntCheckOut;
+  document.getElementById('cnt-total').textContent = total;
+
+  // Add to log
+  addLog(data.employee_name, isIn ? 'in' : 'out', data.event_type, data.timestamp);
+
+  resultTimer = setTimeout(resetResult, RESULT_CLEAR_S * 1000);
+}
+
+function showFail(message) {
+  clearTimeout(resultTimer);
+  faceFrame.className = 'face-frame fail';
+
+  // Don't show noise for "no face detected" — just refresh label
+  if (/no face/i.test(message)) {
+    camLabel.textContent = '👤 No face detected — please look directly at camera';
+    resultCard.className = 'result-card idle';
+    resultIcon.textContent = '📷';
+    resultName.textContent = 'Ready';
+    resultCode.textContent = 'Position your face in the frame';
+    confWrap.style.display = 'none';
+    resultMsg.textContent = '';
+    resultTimer = setTimeout(resetResult, 2000);
+    return;
+  }
+
+  resultCard.className = 'result-card fail';
+  resultIcon.textContent = '⚠️';
+  resultName.textContent = /not recognised|register/i.test(message) ? 'Unknown Face' : 'Scan Failed';
+  resultCode.textContent = '';
+  confWrap.style.display = 'none';
+  resultMsg.textContent = message;
+  camLabel.textContent = '⚠️ ' + message;
+
+  addLog(null, 'err', message, null);
+  resultTimer = setTimeout(resetResult, RESULT_CLEAR_S * 1000);
+}
+
+function resetResult() {
+  faceFrame.className = 'face-frame';
+  resultCard.className = 'result-card idle';
+  resultIcon.textContent = '📷';
+  resultName.textContent = 'Ready';
+  resultCode.textContent = 'Position your face in the frame';
+  confWrap.style.display = 'none';
+  resultMsg.textContent = '';
+  camLabel.textContent = '🟢 Camera ready — look at the camera';
+}
+
+function addLog(name, type, eventOrMsg, ts) {
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  const time = ts ? formatTime(ts) : new Date().toLocaleTimeString('en-IN', { hour12: false });
+  const label = type === 'err'
+    ? (eventOrMsg || 'Failed')
+    : (type === 'in' ? 'Check In' : 'Check Out');
+
+  item.innerHTML = `
+    <div class="log-dot ${type}"></div>
+    <div class="log-info">
+      <div class="log-name">${name || '—'}</div>
+      <div class="log-sub">${label}</div>
+    </div>
+    <div class="log-time">${time}</div>`;
+
+  logList.prepend(item);
+  // Keep max 30 items
+  while (logList.children.length > 30) logList.removeChild(logList.lastChild);
+}
+
+/* ── Auto-scan ───────────────────────────────────────────────────── */
+document.getElementById('interval-label').textContent = SCAN_INTERVAL_S + ' s';
+
+function startAutoScan() {
+  stopAutoScan();
+  autoTimer = setInterval(captureAndMark, SCAN_INTERVAL_S * 1000);
+}
+
+function stopAutoScan() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+}
+
+autoToggle.addEventListener('change', () => {
+  if (autoToggle.checked) startAutoScan();
+  else stopAutoScan();
+});
+
+/* ── Helpers ─────────────────────────────────────────────────────── */
+function formatTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleTimeString('en-IN', { hour12: false });
+}
+
+function setStatus(state, msg) {
+  statusText.textContent = msg;
+  statusDot.style.background = state === 'online' ? 'var(--green)' :
+                               state === 'error'  ? 'var(--red)'   : 'var(--orange)';
+}
+
+function showErr(msg) {
+  errBanner.textContent = msg;
+  errBanner.style.display = 'block';
+  setTimeout(() => { errBanner.style.display = 'none'; }, 5000);
+}
+
+/* ── Fullscreen ──────────────────────────────────────────────────── */
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+/* ── Admin overlay ───────────────────────────────────────────────── */
+function openAdminOverlay() {
+  stopAutoScan();
+  document.getElementById('admin-overlay').classList.add('show');
+  document.getElementById('admin-pin').value = '';
+  document.getElementById('pin-error').textContent = '';
+  setTimeout(() => document.getElementById('admin-pin').focus(), 100);
+}
+
+function closeAdminOverlay() {
+  document.getElementById('admin-overlay').classList.remove('show');
+  if (autoToggle.checked) startAutoScan();
+}
+
+function verifyAdminPin() {
+  const pin = document.getElementById('admin-pin').value;
+  if (pin === ADMIN_PASSWORD) {
+    window.location.href = '/attendance.html';
+  } else {
+    document.getElementById('pin-error').textContent = '❌ Incorrect password';
+  }
+}
+
+document.getElementById('admin-pin').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') verifyAdminPin();
+  if (e.key === 'Escape') closeAdminOverlay();
+});
+
+/* ── Load today's counts from server ─────────────────────────────── */
+async function loadTodayCounts() {
+  try {
+    const res = await apiFetch('/attendance/today');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      cntCheckIn  = data.filter(r => r.event_type === 'CHECK_IN').length;
+      cntCheckOut = data.filter(r => r.event_type === 'CHECK_OUT').length;
+      document.getElementById('cnt-checkin').textContent  = cntCheckIn;
+      document.getElementById('cnt-checkout').textContent = cntCheckOut;
+      document.getElementById('cnt-total').textContent    = cntCheckIn + cntCheckOut;
+
+      // Populate log with recent records
+      data.slice(-10).reverse().forEach(r => {
+        addLog(r.employee_name, r.event_type === 'CHECK_IN' ? 'in' : 'out', r.event_type, r.timestamp);
+      });
+    }
+  } catch (e) { /* silently fail */ }
+}
+
+/* ── Boot ────────────────────────────────────────────────────────── */
+async function init() {
+  setStatus('connecting', '🔄 Connecting…');
+  const loggedIn = await login();
+  if (!loggedIn) return;
+
+  const camOk = await startCamera();
+  if (!camOk) {
+    setStatus('error', '❌ Camera unavailable');
+    return;
+  }
+
+  await loadTodayCounts();
+
+  // Start auto-scan
+  if (autoToggle.checked) startAutoScan();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cameras — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="header">
+      <div class="header-title">Cameras <span>Management</span></div>
+      <div class="header-right">
+        <button class="btn btn-primary btn-sm" onclick="openAddCamera()">+ Add Camera</button>
+        <button class="admin-badge" id="admin-logout">
+          <span class="admin-dot"></span>Admin · Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="page-header">
+        <h1>Camera Network</h1>
+        <p>Manage RTSP, USB, and IP cameras for automatic attendance.</p>
+      </div>
+
+      <!-- Mini stats -->
+      <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);max-width:500px;margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-icon">📷</div>
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="c-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--green)">●</div>
+          <div class="stat-label">Active</div>
+          <div class="stat-value" id="c-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color:var(--text-3)">○</div>
+          <div class="stat-label">Inactive</div>
+          <div class="stat-value" id="c-inactive">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">All Cameras</div>
+          <button class="btn btn-outline btn-sm" onclick="loadCameras()">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Stream URL</th>
+                <th>Status</th>
+                <th>Enabled</th>
+                <th>Last Heartbeat</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cam-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Camera Modal -->
+<div class="modal-backdrop" id="cam-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cam-modal-title">Add Camera</div>
+      <button class="modal-close" onclick="closeModal('cam-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cam-id"/>
+      <div class="form-group">
+        <label class="form-label">Camera Name *</label>
+        <input id="cam-name" class="form-control" placeholder="Main Entrance"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input id="cam-location" class="form-control" placeholder="Ground Floor, Lobby"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="cam-type" class="form-control">
+            <option value="rtsp">RTSP</option>
+            <option value="usb">USB Webcam</option>
+            <option value="http">HTTP Stream</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stream URL *</label>
+        <input id="cam-url" class="form-control" placeholder="rtsp://192.168.1.100:554/stream or 0 for USB"/>
+        <p class="form-hint">USB camera: enter index (0, 1, 2…). RTSP: full URL. HTTP: http://… URL.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('cam-modal')">Cancel</button>
+      <button class="btn btn-primary" id="save-cam-btn" onclick="saveCamera()">Save Camera</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/cameras.js"></script>
+</body>
+</html>

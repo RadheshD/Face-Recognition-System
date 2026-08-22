@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="FaceAttend AI — Intelligent system configuration, AI behavior tuning, attendance rules, and real-time health monitoring."/>
+  <title>Settings — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/settings.css"/>
+</head>
+<body class="settings-page">
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="header">
+      <div>
+        <div class="header-title">Settings <span>· Intelligence</span></div>
+      </div>
+      <div class="header-right">
+        <button class="admin-badge" id="admin-logout">
+          <span class="admin-dot"></span>
+          <span id="admin-name">Admin</span>
+          <span style="color:var(--text-3)">· Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <!-- ═══ HERO ═══════════════════════════════════════════════════════ -->
+      <div class="ai-hero">
+        <div class="ai-hero-orb" aria-hidden="true"></div>
+        <div class="ai-hero-orb ai-hero-orb--2" aria-hidden="true"></div>
+        <div class="ai-hero-content">
+          <div class="ai-hero-badge">
+            <span class="ai-pulse-dot"></span>
+            <span>AI Engine Active</span>
+          </div>
+          <h1 class="ai-hero-title">System Intelligence</h1>
+          <p class="ai-hero-sub">Fine-tune how FaceAttend AI recognizes, decides, and alerts.</p>
+        </div>
+        <div class="ai-hero-actions">
+          <button class="btn-ai-ghost" id="reset-recommended-btn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Reset to AI Recommended
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ 1. AI SYSTEM BEHAVIOR ══════════════════════════════════════ -->
+      <section class="ai-section" id="section-ai-behavior">
+        <div class="ai-section-label">
+          <span class="ai-section-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
+          </span>
+          AI System Behavior
+        </div>
+
+        <div class="ai-cards-row">
+
+          <!-- Recognition Sensitivity -->
+          <div class="ai-card ai-card--wide" id="card-sensitivity">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Recognition Sensitivity</div>
+              <span class="ai-chip" id="sensitivity-chip">Balanced</span>
+            </div>
+            <p class="ai-card-desc" id="sensitivity-desc">Balanced mode provides optimal trade-off between recognition accuracy and processing speed. Recommended for most environments.</p>
+            <div class="ai-slider-wrap">
+              <div class="ai-slider-labels">
+                <span class="ai-slider-label" data-val="0">Strict</span>
+                <span class="ai-slider-label" data-val="1">Balanced</span>
+                <span class="ai-slider-label" data-val="2">Relaxed</span>
+              </div>
+              <div class="ai-slider-track-wrap">
+                <div class="ai-slider-track" id="sensitivity-track">
+                  <div class="ai-slider-fill" id="sensitivity-fill"></div>
+                </div>
+                <input type="range" class="ai-range" id="sensitivity-slider" min="0" max="2" step="1" value="1"/>
+              </div>
+            </div>
+            <div class="ai-kpi-row" id="sensitivity-kpis">
+              <div class="ai-kpi">
+                <span class="ai-kpi-val" id="kpi-conf">0.60</span>
+                <span class="ai-kpi-label">Threshold</span>
+              </div>
+              <div class="ai-kpi-sep"></div>
+              <div class="ai-kpi">
+                <span class="ai-kpi-val" id="kpi-fp">Moderate</span>
+                <span class="ai-kpi-label">False Positives</span>
+              </div>
+              <div class="ai-kpi-sep"></div>
+              <div class="ai-kpi">
+                <span class="ai-kpi-val" id="kpi-speed">Standard</span>
+                <span class="ai-kpi-label">Speed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Confidence Threshold -->
+          <div class="ai-card" id="card-confidence" style="display:flex;flex-direction:column">
+            <div class="ai-card-head">
+              <div class="ai-card-title">AI Confidence</div>
+              <span class="ai-chip ai-chip--blue" id="conf-chip">85%</span>
+            </div>
+            <p class="ai-card-desc">Minimum confidence score required to confirm identity.</p>
+            <div class="ai-radial-wrap" style="margin-bottom:2px">
+              <svg class="ai-radial" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" class="ai-radial-bg"/>
+                <circle cx="60" cy="60" r="52" class="ai-radial-fill" id="conf-radial"/>
+              </svg>
+              <div class="ai-radial-text" id="conf-radial-text">85%</div>
+            </div>
+            <input type="range" class="ai-range ai-range--accent" id="confidence-slider" min="40" max="99" step="1" value="85"/>
+          </div>
+
+          <!-- Recognition Cooldown -->
+          <div class="ai-card" id="card-cooldown">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Recognition Cooldown</div>
+              <span class="ai-chip ai-chip--orange" id="cooldown-chip">30s</span>
+            </div>
+            <p class="ai-card-desc">Minimum seconds before the same face triggers re-recognition.</p>
+            <div class="ai-cooldown-visual" id="cooldown-visual">
+              <div class="ai-cooldown-bar" style="position:relative;cursor:pointer">
+                <div class="ai-cooldown-fill" id="cooldown-fill"></div>
+                <div class="ai-cooldown-marker" id="cooldown-marker"></div>
+                <input type="range" class="ai-range ai-range--orange" id="cooldown-slider" min="0" max="300" step="5" value="30"
+                  style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;padding:0"/>
+              </div>
+              <div class="ai-cooldown-labels">
+                <span>0s</span><span>60s</span><span>120s</span><span>300s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Camera Selector -->
+          <div class="ai-card" id="card-camera">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Live Camera</div>
+              <span class="ai-status-dot ai-status-dot--ok"></span>
+            </div>
+            <p class="ai-card-desc">Select the active camera source for face detection.</p>
+            <div class="ai-select-wrap">
+              <select class="ai-select" id="camera-select">
+                <option value="built-in">Built-in Webcam</option>
+                <option value="usb">USB Camera</option>
+                <option value="ip-rtsp">IP Camera (RTSP)</option>
+              </select>
+              <svg class="ai-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ═══ 2. ATTENDANCE INTELLIGENCE ════════════════════════════════ -->
+      <section class="ai-section" id="section-attendance">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          Attendance Intelligence
+        </div>
+
+        <div class="ai-card ai-card--full" id="card-timeline">
+          <div class="ai-card-head">
+            <div class="ai-card-title">Working Hours Timeline</div>
+            <div class="ai-card-title-sub">Drag handlers or edit times to reconfigure the schedule</div>
+          </div>
+
+          <!-- Timeline visualization -->
+          <div class="tl-wrap" id="tl-wrap">
+            <div class="tl-bar">
+              <div class="tl-zone tl-zone--checkin" id="tl-checkin">
+                <span class="tl-zone-label">Check-In</span>
+              </div>
+              <div class="tl-zone tl-zone--late" id="tl-late">
+                <span class="tl-zone-label">Late</span>
+              </div>
+              <div class="tl-zone tl-zone--work" id="tl-work">
+                <span class="tl-zone-label">Work Period</span>
+              </div>
+              <div class="tl-zone tl-zone--checkout" id="tl-checkout">
+                <span class="tl-zone-label">Check-Out</span>
+              </div>
+            </div>
+            <div class="tl-times">
+              <span class="tl-time" id="tl-time-start">09:00</span>
+              <span class="tl-time tl-time--late" id="tl-time-late">09:15</span>
+              <span class="tl-time tl-time--end" id="tl-time-end">18:00</span>
+            </div>
+          </div>
+
+          <!-- Time inputs -->
+          <div class="tl-inputs">
+            <div class="tl-input-group">
+              <label class="tl-label" for="time-checkin">
+                <span class="tl-label-dot tl-label-dot--green"></span>
+                Check-In Start
+              </label>
+              <input type="time" class="ai-time-input" id="time-checkin" value="09:00"/>
+            </div>
+            <div class="tl-input-group">
+              <label class="tl-label" for="time-late">
+                <span class="tl-label-dot tl-label-dot--orange"></span>
+                Late Threshold
+              </label>
+              <input type="time" class="ai-time-input" id="time-late" value="09:15"/>
+            </div>
+            <div class="tl-input-group">
+              <label class="tl-label" for="time-checkout">
+                <span class="tl-label-dot tl-label-dot--red"></span>
+                Check-Out Time
+              </label>
+              <input type="time" class="ai-time-input" id="time-checkout" value="18:00"/>
+            </div>
+            <div class="tl-input-group">
+              <label class="tl-label" for="grace-period">
+                <span class="tl-label-dot tl-label-dot--blue"></span>
+                Grace Period
+              </label>
+              <div class="ai-stepper">
+                <button class="ai-stepper-btn" id="grace-dec" type="button">−</button>
+                <span class="ai-stepper-val" id="grace-val">15</span>
+                <span class="ai-stepper-unit">min</span>
+                <button class="ai-stepper-btn" id="grace-inc" type="button">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 3. SMART ALERTS ══════════════════════════════════════════ -->
+      <section class="ai-section" id="section-alerts">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--orange">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </span>
+          Smart Alerts & Notifications
+        </div>
+
+        <div class="ai-alerts-grid">
+
+          <!-- Unknown Face -->
+          <div class="ai-alert-card" id="alert-unknown">
+            <div class="ai-alert-top">
+              <div class="ai-alert-icon ai-alert-icon--red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <label class="ai-toggle" for="alert-unknown-toggle">
+                <input type="checkbox" id="alert-unknown-toggle" checked/>
+                <span class="ai-toggle-track"><span class="ai-toggle-thumb"></span></span>
+              </label>
+            </div>
+            <div class="ai-alert-title">Unknown Face Detection</div>
+            <div class="ai-alert-desc">Alert when an unregistered face is detected by any camera.</div>
+            <div class="ai-alert-preview" id="alert-unknown-preview">
+              <div class="ai-alert-preview-bar"></div>
+              <span class="ai-alert-preview-icon">⚠️</span>
+              <span class="ai-alert-preview-text">Unknown face detected on Camera 1 at 10:32 AM</span>
+            </div>
+          </div>
+
+          <!-- Missed Check-Out -->
+          <div class="ai-alert-card" id="alert-missed">
+            <div class="ai-alert-top">
+              <div class="ai-alert-icon ai-alert-icon--orange">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <label class="ai-toggle" for="alert-missed-toggle">
+                <input type="checkbox" id="alert-missed-toggle" checked/>
+                <span class="ai-toggle-track"><span class="ai-toggle-thumb"></span></span>
+              </label>
+            </div>
+            <div class="ai-alert-title">Missed Check-Out</div>
+            <div class="ai-alert-desc">Notify when an employee hasn't checked out after work hours.</div>
+            <div class="ai-alert-preview" id="alert-missed-preview">
+              <div class="ai-alert-preview-bar ai-alert-preview-bar--orange"></div>
+              <span class="ai-alert-preview-icon">🕐</span>
+              <span class="ai-alert-preview-text">3 members haven't checked out past 18:00</span>
+            </div>
+          </div>
+
+          <!-- Daily Summary -->
+          <div class="ai-alert-card" id="alert-summary">
+            <div class="ai-alert-top">
+              <div class="ai-alert-icon ai-alert-icon--blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <label class="ai-toggle" for="alert-summary-toggle">
+                <input type="checkbox" id="alert-summary-toggle"/>
+                <span class="ai-toggle-track"><span class="ai-toggle-thumb"></span></span>
+              </label>
+            </div>
+            <div class="ai-alert-title">Daily Attendance Summary</div>
+            <div class="ai-alert-desc">Send a summarized daily report at end of business hours.</div>
+            <div class="ai-alert-preview ai-alert-preview--off" id="alert-summary-preview">
+              <div class="ai-alert-preview-bar ai-alert-preview-bar--blue"></div>
+              <span class="ai-alert-preview-icon">📊</span>
+              <span class="ai-alert-preview-text">Daily report: 42 present, 3 absent, 2 late</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ═══ 4. AI DATA & MODEL CONTROL ═══════════════════════════════ -->
+      <section class="ai-section" id="section-model">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </span>
+          AI Data & Model Control
+        </div>
+
+        <div class="ai-cards-row">
+
+          <!-- Rebuild Encodings -->
+          <div class="ai-card" id="card-rebuild">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Rebuild Face Encodings</div>
+            </div>
+            <p class="ai-card-desc">Re-process all registered faces to generate fresh 128-D vectors. Use after adding new photos.</p>
+            <div class="ai-action-status" id="rebuild-status">
+              <span class="ai-status-dot ai-status-dot--idle"></span>
+              <span class="ai-status-text" id="rebuild-status-text">Ready</span>
+            </div>
+            <button class="btn-ai-action" id="rebuild-btn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Rebuild Now</span>
+            </button>
+          </div>
+
+          <!-- Export Data -->
+          <div class="ai-card" id="card-export">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Export Attendance Data</div>
+            </div>
+            <p class="ai-card-desc">Download attendance records in your preferred format.</p>
+            <div class="ai-export-options">
+              <button class="ai-export-btn" data-format="csv" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>CSV</span>
+              </button>
+              <button class="ai-export-btn" data-format="excel" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Excel</span>
+              </button>
+              <button class="ai-export-btn" data-format="json" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                <span>JSON</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dataset Health -->
+          <div class="ai-card ai-card--wide" id="card-dataset">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Dataset Health</div>
+              <span class="ai-chip ai-chip--green" id="dataset-quality-chip">Good</span>
+            </div>
+            <div class="ai-dataset-grid">
+              <div class="ai-dataset-stat">
+                <div class="ai-dataset-stat-ring">
+                  <svg viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="34" class="ai-ring-bg"/>
+                    <circle cx="40" cy="40" r="34" class="ai-ring-fill ai-ring-fill--green" id="dataset-ring"/>
+                  </svg>
+                  <span class="ai-dataset-stat-val" id="dataset-quality-val">92%</span>
+                </div>
+                <span class="ai-dataset-stat-label">Quality Score</span>
+              </div>
+              <div class="ai-dataset-info">
+                <div class="ai-dataset-row">
+                  <span class="ai-dataset-row-label">Registered Faces</span>
+                  <span class="ai-dataset-row-val" id="dataset-faces">5</span>
+                </div>
+                <div class="ai-dataset-row">
+                  <span class="ai-dataset-row-label">Encoding Vectors</span>
+                  <span class="ai-dataset-row-val" id="dataset-vectors">5</span>
+                </div>
+                <div class="ai-dataset-row">
+                  <span class="ai-dataset-row-label">Avg Vectors / Person</span>
+                  <span class="ai-dataset-row-val" id="dataset-avg-vec">1.0</span>
+                </div>
+                <div class="ai-dataset-row">
+                  <span class="ai-dataset-row-label">Last Updated</span>
+                  <span class="ai-dataset-row-val" id="dataset-updated">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ═══ 5. SYSTEM HEALTH ═════════════════════════════════════════ -->
+      <section class="ai-section" id="section-health">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+          System Health
+        </div>
+
+        <div class="ai-health-grid">
+          <div class="ai-health-item">
+            <div class="ai-health-indicator ai-health-indicator--ok" id="health-camera-dot"></div>
+            <div class="ai-health-info">
+              <span class="ai-health-label">Camera Status</span>
+              <span class="ai-health-val" id="health-camera">Connected</span>
+            </div>
+          </div>
+          <div class="ai-health-item">
+            <div class="ai-health-indicator ai-health-indicator--ok" id="health-model-dot"></div>
+            <div class="ai-health-info">
+              <span class="ai-health-label">Model Accuracy</span>
+              <span class="ai-health-val" id="health-accuracy">96.2%</span>
+            </div>
+          </div>
+          <div class="ai-health-item">
+            <div class="ai-health-indicator ai-health-indicator--ok" id="health-faces-dot"></div>
+            <div class="ai-health-info">
+              <span class="ai-health-label">Faces Registered</span>
+              <span class="ai-health-val" id="health-faces">5</span>
+            </div>
+          </div>
+          <div class="ai-health-item">
+            <div class="ai-health-indicator ai-health-indicator--ok" id="health-uptime-dot"></div>
+            <div class="ai-health-info">
+              <span class="ai-health-label">System Uptime</span>
+              <span class="ai-health-val" id="health-uptime">—</span>
+            </div>
+          </div>
+          <div class="ai-health-item">
+            <div class="ai-health-indicator ai-health-indicator--ok" id="health-last-dot"></div>
+            <div class="ai-health-info">
+              <span class="ai-health-label">Last Recognition</span>
+              <span class="ai-health-val" id="health-last-event">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 6. DATA & PRIVACY ═══════════════════════════════════════ -->
+      <section class="ai-section" id="section-data-privacy">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--teal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          Data &amp; Privacy
+        </div>
+
+        <div class="ai-cards-row">
+
+          <!-- Export Attendance Data -->
+          <div class="ai-card" id="card-dp-export" style="display:flex;flex-direction:column">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Export Attendance Data</div>
+              <span class="ai-chip ai-chip--blue">Download</span>
+            </div>
+            <p class="ai-card-desc">Choose a format and download the complete attendance records for this system.</p>
+            <div class="dp-export-row" style="margin-top:auto">
+              <div class="ai-select-wrap dp-export-select-wrap">
+                <select class="ai-select" id="dp-export-format">
+                  <option value="csv">CSV — Comma Separated</option>
+                  <option value="excel">Excel — Spreadsheet</option>
+                  <option value="json">JSON — Raw Data</option>
+                </select>
+                <svg class="ai-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <button class="btn-ai-action dp-download-btn" id="dp-download-btn" type="button" style="width:auto">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Download</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Rebuild Face Encodings -->
+          <div class="ai-card" id="card-dp-rebuild" style="display:flex;flex-direction:column">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Rebuild Face Encodings</div>
+            </div>
+            <p class="ai-card-desc">Re-generate all 128-D face vectors from the registered dataset. Run after adding or removing members.</p>
+            <div class="ai-action-status" id="dp-rebuild-status" style="margin-top:auto;margin-bottom:14px">
+              <span class="ai-status-dot ai-status-dot--idle"></span>
+              <span class="ai-status-text" id="dp-rebuild-status-text">Ready</span>
+            </div>
+            <button class="btn-ai-action" id="dp-rebuild-btn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Rebuild Encodings</span>
+            </button>
+          </div>
+
+          <!-- Face Encoding Info -->
+          <div class="ai-card" id="card-dp-encoding-info" style="display:flex;flex-direction:column">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Face Encoding Information</div>
+              <span class="ai-chip ai-chip--green">Live</span>
+            </div>
+            <p class="ai-card-desc">Current state of the registered face dataset and encoding pipeline.</p>
+            <div class="dp-info-rows">
+              <div class="dp-info-row">
+                <span class="dp-info-label">Faces Registered</span>
+                <span class="dp-info-val" id="dp-faces-registered">—</span>
+              </div>
+              <div class="dp-info-row">
+                <span class="dp-info-label">Encoding Version</span>
+                <span class="dp-info-val" id="dp-encoding-version">v1.0</span>
+              </div>
+              <div class="dp-info-row">
+                <span class="dp-info-label">Last Updated</span>
+                <span class="dp-info-val" id="dp-last-updated">—</span>
+              </div>
+            </div>
+            <button class="btn-ai-action dp-reprocess-btn" id="dp-reprocess-btn" type="button" style="margin-top:14px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              <span>Reprocess Dataset</span>
+            </button>
+          </div>
+
+        </div><!-- /ai-cards-row -->
+
+        <!-- Danger Zone -->
+        <div class="dp-danger-zone" id="card-dp-danger">
+          <div class="dp-danger-header">
+            <div class="dp-danger-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="dp-danger-title">Danger Zone</div>
+              <div class="dp-danger-sub">These actions are irreversible. Proceed with extreme caution.</div>
+            </div>
+          </div>
+          <div class="dp-danger-item">
+            <div class="dp-danger-item-info">
+              <div class="dp-danger-item-name">Delete Attendance Data</div>
+              <div class="dp-danger-item-desc">Permanently remove all attendance records from the database. This cannot be undone.</div>
+            </div>
+            <button class="btn-danger" id="dp-delete-records-btn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete All Records
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ 7. USER MANAGEMENT ════════════════════════════════════ -->
+      <section class="ai-section" id="section-user-mgmt">
+        <div class="ai-section-label">
+          <span class="ai-section-icon ai-section-icon--indigo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          User Management
+        </div>
+
+        <div class="ai-cards-row">
+
+          <!-- Admin List -->
+          <div class="ai-card ai-card--wide" id="card-um-admins">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Admin List</div>
+              <button class="btn-ai-ghost btn-ai-sm" id="um-add-admin-btn" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Admin
+              </button>
+            </div>
+            <p class="ai-card-desc">All users with administrative access to the FaceAttend AI system.</p>
+            <div class="um-admin-list" id="um-admin-list">
+              <div class="um-admin-row">
+                <div class="um-admin-avatar">RD</div>
+                <div class="um-admin-info">
+                  <span class="um-admin-name">Radhesh Dahagam</span>
+                  <span class="um-admin-email">admin@faceattend.ai</span>
+                </div>
+                <span class="um-role-badge um-role-badge--owner">Owner</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role Permissions -->
+          <div class="ai-card" id="card-um-roles">
+            <div class="ai-card-head">
+              <div class="ai-card-title">Role Permissions</div>
+            </div>
+            <p class="ai-card-desc">What each role can access in the FaceAttend AI system.</p>
+            <div class="um-roles-list">
+              <div class="um-role-item">
+                <div class="um-role-dot um-role-dot--owner"></div>
+                <div class="um-role-item-info">
+                  <span class="um-role-item-name">Owner</span>
+                  <span class="um-role-item-desc">Full system access — settings, users, data, and billing</span>
+                </div>
+              </div>
+              <div class="um-role-item">
+                <div class="um-role-dot um-role-dot--admin"></div>
+                <div class="um-role-item-info">
+                  <span class="um-role-item-name">Admin</span>
+                  <span class="um-role-item-desc">Manage employees, view all analytics, configure alerts</span>
+                </div>
+              </div>
+              <div class="um-role-item">
+                <div class="um-role-dot um-role-dot--manager"></div>
+                <div class="um-role-item-info">
+                  <span class="um-role-item-name">Manager</span>
+                  <span class="um-role-item-desc">View attendance records and export reports only</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ═══ MODALS ════════════════════════════════════════════════ -->
+
+      <!-- Delete Confirmation Modal -->
+      <div class="dp-modal-overlay" id="dp-delete-modal" role="dialog" aria-modal="true" aria-labelledby="dp-modal-title">
+        <div class="dp-modal">
+          <div class="dp-modal-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h2 class="dp-modal-title" id="dp-modal-title">Delete All Attendance Records?</h2>
+          <p class="dp-modal-body">This will permanently erase <strong>all attendance data</strong> from the database. This action <em>cannot</em> be undone. Make sure you have a backup before proceeding.</p>
+          <div class="dp-modal-actions">
+            <button class="btn-ai-ghost" id="dp-modal-cancel" type="button">Cancel</button>
+            <button class="btn-danger btn-danger--solid" id="dp-modal-confirm" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              Yes, Delete All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Admin Modal -->
+      <div class="dp-modal-overlay" id="um-add-modal" role="dialog" aria-modal="true" aria-labelledby="um-modal-title">
+        <div class="dp-modal">
+          <div class="dp-modal-icon dp-modal-icon--indigo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+          <h2 class="dp-modal-title" id="um-modal-title">Invite New Admin</h2>
+          <p class="dp-modal-body">Send an invitation to grant administrative access to the FaceAttend AI system.</p>
+          <div class="um-form">
+            <div class="um-form-group">
+              <label class="um-form-label" for="um-full-name">Full Name</label>
+              <input type="text" class="um-form-input" id="um-full-name" placeholder="e.g. Priya Sharma" autocomplete="off"/>
+            </div>
+            <div class="um-form-group">
+              <label class="um-form-label" for="um-email">Email Address</label>
+              <input type="email" class="um-form-input" id="um-email" placeholder="e.g. priya@company.com" autocomplete="off"/>
+            </div>
+            <div class="um-form-group">
+              <label class="um-form-label" for="um-role">Role</label>
+              <div class="ai-select-wrap">
+                <select class="ai-select" id="um-role">
+                  <option value="owner">Owner — Full Access</option>
+                  <option value="admin" selected>Admin — Manage &amp; Analyze</option>
+                  <option value="manager">Manager — View &amp; Export</option>
+                </select>
+                <svg class="ai-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="dp-modal-actions">
+            <button class="btn-ai-ghost" id="um-modal-cancel" type="button">Cancel</button>
+            <button class="btn-ai-primary" id="um-modal-invite" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Invite Admin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SAVE BAR ════════════════════════════════════════════════ -->
+      <div class="ai-save-bar" id="ai-save-bar">
+        <div class="ai-save-inner">
+          <div class="ai-save-left">
+            <span class="ai-save-dot" id="save-dot"></span>
+            <span class="ai-save-hint" id="save-hint">Unsaved changes</span>
+          </div>
+          <div class="ai-save-right">
+            <button class="btn-ai-ghost btn-ai-sm" id="discard-btn" type="button">Discard</button>
+            <button class="btn-ai-primary" id="save-btn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Configuration
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/settings.js"></script>
+</body>
+</html>

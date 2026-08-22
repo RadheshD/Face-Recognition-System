@@ -1,0 +1,44 @@
+# Python virtual environments
+venv/
+venv_310/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+attendance.db
+
+# Secrets and environment variables
+.env
+.env.*
+!.env.example
+
+# Application data & encodings
+*.pkl
+
+# Debug and images
+*.jpg
+*.jpeg
+*.png
+*.log
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies and built files
+*.whl
+build/
+dist/
+*.egg-info/

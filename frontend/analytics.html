@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- Export Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    /* Calm Intelligence UI v2 Overrides */
+    :root {
+      --calm-primary: #6366f1;
+      /* Indigo */
+      --calm-bg: #FDFDFF;
+      --calm-text: #1e293b;
+      --calm-text-muted: #64748b;
+      --calm-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      --calm-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    body.analytics-page {
+      background: radial-gradient(circle at top right, #f8fafc 0%, #FDFDFF 100%) !important;
+      color: var(--text);
+      overflow-x: hidden;
+      font-family: 'Inter', 'Inter var', system-ui, -apple-system, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .analytics-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      animation: analyticsFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes analyticsFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Scroll Fade-in */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Header & Export */
+    .header-right {
+      gap: 16px;
+    }
+
+    .export-wrapper {
+      position: relative;
+    }
+
+    .btn-export {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--calm-text);
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-export:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .export-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 8px;
+      min-width: 180px;
+      box-shadow: var(--calm-shadow-lg);
+      display: none;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      animation: dropdownIn 0.2s ease-out;
+    }
+
+    @keyframes dropdownIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .export-dropdown.show {
+      display: block;
+    }
+
+    .export-item {
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--calm-text-muted);
+      transition: all 0.15s;
+    }
+
+    .export-item:hover {
+      background: #f1f5f9;
+      color: var(--calm-text);
+    }
+
+    /* Section 1: Glassmorphism Signal Cards */
+    .signals-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .signal-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Inner Light Reflection Layer */
+    .signal-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+      pointer-events: none;
+    }
+
+    /* Light Reflection at Top Edge */
+    .signal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+      z-index: 2;
+    }
+
+    .signal-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: 0 15px 45px rgba(99, 102, 241, 0.12);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .sc-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-3);
+      position: relative;
+      z-index: 3;
+    }
+
+    .sc-metric {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 3;
+      line-height: 1;
+    }
+
+    .sc-insight {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-2);
+      line-height: 1.5;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* Tinted Accents (Subtle Glow & Bottom Border) */
+    .signal-card.indigo {
+      border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .signal-card.emerald {
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .signal-card.amber {
+      border-bottom: 2px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .signal-card.slate {
+      border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+    }
+
+    /* Purple for data */
+
+    .signal-card.indigo:hover {
+      box-shadow: 0 15px 45px rgba(99, 102, 241, 0.15);
+    }
+
+    .signal-card.emerald:hover {
+      box-shadow: 0 15px 45px rgba(16, 185, 129, 0.1);
+    }
+
+    .signal-card.amber:hover {
+      box-shadow: 0 15px 45px rgba(245, 158, 11, 0.1);
+    }
+
+    .signal-card.slate:hover {
+      box-shadow: 0 15px 45px rgba(139, 92, 246, 0.1);
+    }
+
+    /* Section 2: Attendance Behavior */
+    .behavior-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: var(--calm-shadow);
+      border: 1px solid rgba(0, 0, 0, 0.01);
+    }
+
+    .behavior-insight {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.95rem;
+      color: var(--calm-text-muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .behavior-insight::before {
+      content: 'Insight';
+      background: var(--calm-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Section 3: Recognition Quality Breakdown */
+    .quality-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .breakdown-bar {
+      height: 12px;
+      width: 100%;
+      background: #f1f5f9;
+      border-radius: 999px;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .bb-segment {
+      height: 100%;
+      transition: width 1s ease-in-out;
+    }
+
+    .bb-high {
+      background: #10B981;
+    }
+
+    .bb-medium {
+      background: #6366f1;
+    }
+
+    .bb-low {
+      background: #F59E0B;
+    }
+
+    .breakdown-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--calm-text-muted);
+    }
+
+    /* Section 4: System Insights Layer */
+    .insights-layer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .insight-observation {
+      padding: 24px;
+      background: white;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      box-shadow: var(--calm-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .io-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--calm-primary);
+    }
+
+    .io-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--calm-text);
+      line-height: 1.5;
+    }
+
+    /* Employee Exploration Enhancements */
+    .emp-preview-stats {
+      margin-top: 16px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .eps-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .eps-label {
+      font-size: 0.65rem;
+      color: var(--calm-text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .eps-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--calm-text);
+    }
+
+    /* Section 4: Employee Search Experience */
+    .search-container-v3 {
+      position: relative;
+      width: 100%;
+      margin-bottom: 32px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      width: 100%;
+      z-index: 60;
+    }
+
+    .search-input-v3 {
+      width: 100%;
+      padding: 22px 32px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      font-size: 1.15rem;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--calm-shadow);
+      color: var(--calm-text);
+      display: block;
+    }
+
+    .search-input-v3:focus {
+      border-color: var(--calm-primary);
+      transform: translateY(-2px);
+    }
+
+    .search-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      pointer-events: none;
+      box-shadow: 0 0 20px var(--calm-primary);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .search-input-v3:focus+.search-glow {
+      opacity: 0.05;
+    }
+
+    .search-suggestions-v3 {
+      position: absolute;
+      top: calc(100% + 12px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 22px;
+      border: 1px solid #e2e8f0;
+      box-shadow: var(--calm-shadow-lg);
+      overflow: hidden;
+      display: none;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      animation: dropdownSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes dropdownSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .search-suggestions-v3.show {
+      display: block;
+    }
+
+    .suggestion-item-v3 {
+      padding: 16px 32px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .suggestion-item-v3:hover {
+      background: #f8fafc;
+      padding-left: 36px;
+    }
+
+    .suggestion-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .suggestion-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--calm-text);
+    }
+
+    .suggestion-status {
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-dot.active {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .status-dot.warning {
+      background: var(--orange);
+      box-shadow: 0 0 8px var(--orange);
+    }
+
+    .status-dot.absent {
+      background: #cbd5e1;
+    }
+
+    /* Insight Panel */
+    .insight-panel-v3 {
+      display: none;
+      background: white;
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: var(--calm-shadow);
+      border: 1px solid rgba(0, 0, 0, 0.01);
+      animation: panelIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes panelIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ip-header {
+      margin-bottom: 40px;
+    }
+
+    .ip-name {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--calm-text);
+    }
+
+    .ip-smart-insight {
+      font-size: 1rem;
+      color: var(--calm-primary);
+      font-weight: 500;
+      margin-top: 4px;
+      padding: 8px 16px;
+      background: var(--calm-primary);
+      color: white;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 12px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .ip-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+
+    .ip-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ip-label {
+      font-size: 0.75rem;
+      color: var(--calm-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .ip-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--calm-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Analytics Hero Section - Matching Dashboard Dashboard Hero */
+    .analytics-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(34, 197, 94, 0.05));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 36px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      box-shadow: var(--calm-shadow);
+    }
+
+    /* Subtle glow bloom */
+    .analytics-hero::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .analytics-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .analytics-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-2);
+      font-weight: 450;
+      margin-bottom: 0;
+      line-height: 1.6;
+      position: relative;
+      z-index: 2;
+      margin-top: 8px;
+    }
+
+    .analytics-subtitle span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Section Label Matching style.css */
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-soft);
+    }
+
+    /* Header Title Restoration */
+    .header-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-title span {
+      color: var(--text-3);
+      font-weight: 400;
+      font-size: 0.875rem;
+      margin-left: 2px;
+    }
+
+    @media (max-width: 800px) {
+      .ip-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      .signals-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .insights-layer {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Unique Minimalist Calendar Styles */
+    .behavior-calendar-wrap {
+      background: white;
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: var(--calm-shadow);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .cal-header-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--calm-text);
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f8fafc;
+      padding: 6px 8px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .cal-nav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--calm-text-muted);
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      padding: 0;
+    }
+
+    .cal-nav-btn:hover {
+      color: var(--calm-text);
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .cal-month-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--calm-text);
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .cal-grid-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .cal-grid-header span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--calm-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      row-gap: 16px;
+      column-gap: 8px;
+      justify-items: center;
+    }
+
+    .cal-cell {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .cal-cell.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .cal-cell.nodata {
+      background: #f8fafc;
+      color: #cbd5e1;
+      cursor: default;
+    }
+
+    .cal-cell.weekoff {
+      background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 4px, #f1f5f9 4px, #f1f5f9 8px);
+      color: #94a3b8;
+      border: 1px dashed #cbd5e1;
+      cursor: default;
+    }
+
+    .cal-cell.present {
+      background: var(--calm-primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .cal-cell.partial {
+      background: #fffbeb;
+      color: #d97706;
+      border: 2px solid #fcd34d;
+    }
+
+    .cal-cell.absent {
+      background: #fff1f2;
+      color: #e11d48;
+      border: 2px solid #fecdd3;
+    }
+
+    .cal-cell:not(.empty):not(.nodata):not(.weekoff):hover {
+      transform: scale(1.15);
+      z-index: 10;
+    }
+
+    /* Elegant Tooltip */
+    .cal-tooltip {
+      position: absolute;
+      bottom: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #1e293b;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      width: max-content;
+      text-align: left;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .cal-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: #1e293b transparent transparent transparent;
+    }
+
+    .cal-cell:hover .cal-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .tt-date {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .tt-status {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .tt-status.present {
+      color: #818cf8;
+    }
+
+    .tt-status.partial {
+      color: #fbbf24;
+    }
+
+    .tt-status.absent {
+      color: #fb7185;
+    }
+
+    .tt-times {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
+
+    .tt-times div {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .tt-times span {
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+
+<body class="analytics-page">
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">Analytics <span>Insights</span></div>
+        </div>
+        <div class="header-right">
+          <div class="export-wrapper">
+            <button class="btn-export" id="export-toggle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export
+            </button>
+            <div class="export-dropdown" id="export-menu">
+              <div class="export-item" data-format="csv">Export as CSV</div>
+              <div class="export-item" data-format="xlsx">Export as Excel</div>
+              <div class="export-item" data-format="pdf">Export as PDF Report</div>
+            </div>
+          </div>
+          <button class="admin-badge" id="admin-logout">
+            <span class="admin-dot"></span>
+            <span id="admin-name">Admin</span>
+            <span style="color:var(--text-3)">· Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="analytics-container">
+
+        <!-- Premium Hero Section -->
+        <div class="analytics-hero">
+          <h1 class="analytics-title">Analytics Dashboard</h1>
+          <p class="analytics-subtitle">Intelligent system health and <span>behavioral insights</span></p>
+        </div>
+        <!-- Section 1: System Signals -->
+        <section class="fade-in">
+          <h2 class="section-label">System Signals</h2>
+          <div class="signals-grid">
+            <div class="signal-card indigo">
+              <span class="sc-label">Recognition Stability</span>
+              <span class="sc-metric" id="sig-stability-val">0%</span>
+              <p class="sc-insight" id="sig-stability-ins">Analyzing stream consistency...</p>
+            </div>
+            <div class="signal-card emerald">
+              <span class="sc-label">Detection Reliability</span>
+              <span class="sc-metric" id="sig-reliability-val">0%</span>
+              <p class="sc-insight" id="sig-reliability-ins">Calculating match certainty...</p>
+            </div>
+            <div class="signal-card amber">
+              <span class="sc-label">Review Load</span>
+              <span class="sc-metric" id="sig-review-val">0</span>
+              <p class="sc-insight" id="sig-review-ins">Monitoring low-confidence flags...</p>
+            </div>
+            <div class="signal-card slate">
+              <span class="sc-label">Data Coverage</span>
+              <span class="sc-metric" id="sig-coverage-val">0</span>
+              <p class="sc-insight" id="sig-coverage-ins">Aggregating session data points...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Attendance Behavior (Minimalist Unique Calendar) -->
+        <section class="fade-in">
+          <h2 class="section-label">Attendance Behavior</h2>
+          <div class="behavior-calendar-wrap">
+            <div class="cal-header">
+              <div class="cal-header-title">Monthly Activity</div>
+              <div class="cal-nav">
+                <button class="cal-nav-btn" id="cal-prev">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <div class="cal-month-label" id="cal-month-label">April 2026</div>
+                <button class="cal-nav-btn" id="cal-next">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="cal-grid-header">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+            <div class="cal-grid" id="cal-grid">
+              <!-- Dynamically populated by JS -->
+            </div>
+            <p class="behavior-insight" id="behavior-insight"
+              style="margin-top: 32px; border-top: 1px solid #f1f5f9; padding-top: 20px;">System activity follows a
+              consistent behavioral pattern.</p>
+          </div>
+        </section>
+
+        <!-- Section 3: Recognition Quality Breakdown -->
+        <section class="fade-in">
+          <h2 class="section-label">Recognition Quality Breakdown</h2>
+          <div class="behavior-card">
+            <div class="quality-breakdown">
+              <div class="breakdown-bar">
+                <div id="bb-high" class="bb-segment bb-high" style="width: 0%"></div>
+                <div id="bb-med" class="bb-segment bb-medium" style="width: 0%"></div>
+                <div id="bb-low" class="bb-segment bb-low" style="width: 0%"></div>
+              </div>
+              <div class="breakdown-labels">
+                <span>High Confidence</span>
+                <span>Medium Confidence</span>
+                <span>Needs Attention</span>
+              </div>
+            </div>
+            <p class="behavior-insight" id="quality-insight"
+              style="border-top: none; margin-top: 24px; padding-top: 0;">Analyzing confidence distribution across all
+              detections.</p>
+          </div>
+        </section>
+
+        <!-- Section 4: System Insights Layer -->
+        <section class="fade-in">
+          <h2 class="section-label">System Insights</h2>
+          <div class="insights-layer" id="insights-layer">
+            <!-- Observations injected here -->
+          </div>
+        </section>
+
+        <!-- Section 5: Member Exploration -->
+        <section class="fade-in">
+          <h2 class="section-label">Member Exploration</h2>
+          <div class="search-container-v3">
+            <div class="search-input-wrap">
+              <input type="text" id="emp-search" class="search-input-v3" placeholder="Search member by name or ID..."
+                autocomplete="off">
+              <div class="search-glow"></div>
+            </div>
+            <div class="search-suggestions-v3" id="emp-suggestions"></div>
+          </div>
+
+          <div class="insight-panel-v3" id="emp-panel">
+            <div class="ip-header">
+              <div class="ip-name" id="ip-name">—</div>
+              <div class="ip-smart-insight" id="ip-smart-insight">—</div>
+            </div>
+            <div class="ip-grid">
+              <div class="ip-item"><span class="ip-label">Attendance Rate</span><span class="ip-value"
+                  id="ip-rate">—</span></div>
+              <div class="ip-item"><span class="ip-label">Last Seen</span><span class="ip-value" id="ip-last">—</span>
+              </div>
+              <div class="ip-item"><span class="ip-label">Confidence</span><span class="ip-value" id="ip-conf">—</span>
+              </div>
+              <div class="ip-item">
+                <span class="ip-label">Observations</span>
+                <div class="emp-preview-stats">
+                  <div class="eps-item">
+                    <span class="eps-label">Flags</span>
+                    <span class="eps-value" id="ip-flags">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/analytics.js"></script>
+</body>
+
+</html>

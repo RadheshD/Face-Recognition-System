@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presence Recognized — FaceAttend AI</title>
+  <meta name="description" content="Sign in to FaceAttend AI intelligent identity system"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    /* Intelligent Login Overrides */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.04) 0%, #f4f4f5 100%);
+      animation: bgBreath 4s infinite alternate ease-in-out;
+    }
+
+    @keyframes bgBreath {
+      from { background: radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, #f4f4f5 100%); }
+      to { background: radial-gradient(circle at center, rgba(99, 102, 241, 0.02) 0%, #f4f4f5 100%); }
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      border-radius: 24px;
+      padding: 48px;
+      width: 100%;
+      max-width: 400px;
+      animation: floatCard 6s infinite alternate ease-in-out;
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes floatCard {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-6px); }
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 36px;
+      animation: logoLoad 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    @keyframes logoLoad {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .login-logo .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+      color: white;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.05em;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .login-logo .icon:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .login-logo h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    .login-logo h1 span {
+      color: #6366f1;
+    }
+
+    .login-logo p {
+      color: #64748b;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-top: 6px;
+      letter-spacing: 0.01em;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      color: #1e293b;
+      transition: all 0.2s ease;
+      background: #f8fafc;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #818cf8;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .input-hint {
+      font-size: 0.75rem;
+      color: #6366f1;
+      position: absolute;
+      bottom: -18px;
+      left: 4px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.2s ease;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .form-control:focus + .input-hint,
+    .password-wrapper .form-control:focus ~ .input-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      transition: color 0.2s ease;
+    }
+
+    .password-toggle:hover {
+      color: #475569;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-login:active:not(:disabled) {
+      transform: scale(0.97);
+      box-shadow: 0 2px 10px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-login:disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 150%; height: 150%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .btn-login.pressed::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    @keyframes loadingDots {
+      0%, 20% { content: "."; }
+      40% { content: ".."; }
+      60%, 100% { content: "..."; }
+    }
+
+    .loading-dots::after {
+      content: "";
+      animation: loadingDots 1.5s infinite steps(1);
+      position: absolute;
+    }
+
+    .security-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .security-text svg {
+      filter: drop-shadow(0 0 2px rgba(148, 163, 184, 0.5));
+    }
+  </style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">FA</div>
+      <h1>Face<span>Attend</span> AI</h1>
+      <p>Presence. Recognized instantly.</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="username">Identity ID</label>
+        <input id="username" class="form-control" type="text" placeholder="admin or user1" autocomplete="username" required/>
+        <span class="input-hint">Ready to identify</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Passkey</label>
+        <div class="password-wrapper">
+          <input id="password" class="form-control" type="password" placeholder="Enter your passkey" autocomplete="current-password" required/>
+          <button type="button" class="password-toggle" id="toggle-password" aria-label="Toggle password visibility">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <span class="input-hint">Verifying credentials...</span>
+        </div>
+      </div>
+      <div id="login-error" style="color:#ef4444;font-size:0.85rem;margin-bottom:16px;display:none;padding:12px;background:#fef2f2;border:1px solid #fecdd3;border-radius:12px;font-weight:500;"></div>
+      <button id="login-btn" class="btn-login" type="submit">
+        <span id="btn-text">Sign In</span>
+      </button>
+    </form>
+
+    <div class="security-text">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      Runs locally. Your data never leaves the system.
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    window.location.href = '/dashboard.html';
+  }
+
+  // Password toggle functionality
+  const toggleBtn = document.getElementById('toggle-password');
+  const passInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
+
+  toggleBtn.addEventListener('click', () => {
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      eyeIcon.innerHTML = `
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+      `;
+    } else {
+      passInput.type = 'password';
+      eyeIcon.innerHTML = `
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      `;
+    }
+  });
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn    = document.getElementById('login-btn');
+    const errEl  = document.getElementById('login-error');
+    const btnText = document.getElementById('btn-text');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    
+    errEl.style.display = 'none';
+    
+    // Disable inputs
+    usernameInput.disabled = true;
+    passwordInput.disabled = true;
+    btn.disabled = true;
+    btn.classList.add('pressed');
+    
+    // Feedback step 1
+    btnText.textContent = "Authenticating";
+    btnText.classList.add('loading-dots');
+
+    try {
+      const data = await api.post('/auth/login', {
+        username: usernameInput.value.trim(),
+        password: passwordInput.value,
+      });
+      
+      // Instantly show success upon API response
+      btnText.classList.remove('loading-dots');
+      btnText.textContent = "Access granted";
+      btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+      btn.style.boxShadow = "0 4px 15px rgba(16, 185, 129, 0.3)";
+      Auth.setToken(data.access_token);
+      localStorage.setItem('fa_role', 'admin');
+      
+      // Fast redirect (300ms) just to show the green success state briefly
+      setTimeout(() => {
+         window.location.href = '/dashboard.html';
+      }, 300);
+
+    } catch (err) {
+      // Minimal delay on error (300ms) to ensure smooth transition
+      setTimeout(() => {
+        errEl.textContent = err.message || 'Identity not recognized. Please try again.';
+        errEl.style.display = 'block';
+        usernameInput.disabled = false;
+        passwordInput.disabled = false;
+        btn.disabled = false;
+        btn.classList.remove('pressed');
+        btnText.classList.remove('loading-dots');
+        btnText.textContent = "Sign In";
+      }, 300);
+    }
+  });
+</script>
+</body>
+</html>

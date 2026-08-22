@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="FaceAttend AI — Real-time face recognition attendance dashboard with live metrics and activity feed."/>
+  <title>Dashboard — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main-content">
+    <header class="header">
+      <div>
+        <div class="header-title">Dashboard <span>Overview</span></div>
+      </div>
+      <div class="header-right">
+        <!-- Dark mode toggle injected by api.js renderLayout -->
+        <button class="admin-badge" id="admin-logout">
+          <span class="admin-dot"></span>
+          <span id="admin-name">Admin</span>
+          <span style="color:var(--text-3)">· Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <!-- ── Premium Hero Header ────────────────────────────────────────── -->
+      <div class="dash-hero">
+        <div class="dash-hero-left">
+          <div class="dash-hero-top">
+            <div class="dash-live-badge">
+              <span class="dash-live-dot" aria-label="Live"></span>
+              <span class="dash-live-label">Live</span>
+            </div>
+          </div>
+
+          <h1 class="dash-title">Attendance Dashboard</h1>
+          <p class="dash-subtitle">Real-time face recognition attendance — <span id="dash-org">FaceAttend AI</span></p>
+        </div>
+        <div class="dash-hero-right">
+          <!-- Horizontal Glass Date Capsule -->
+          <div class="date-capsule-horiz" id="date-capsule">
+            <div class="dc-left">
+              <span class="dc-day-number" id="dc-day-number">--</span>
+            </div>
+            <div class="dc-right">
+              <span class="dc-day-label" id="dc-day-label">---</span>
+              <span class="dc-month-year" id="dc-month-year">--- ----</span>
+              <span class="dc-today-text">Today</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ── Stat Cards ──────────────────────────────────────────────────── -->
+      <div class="stat-grid">
+
+        <!-- Total Employees -->
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value" id="s-employees">—</div>
+          <div class="stat-sub" id="s-active-emp">— active</div>
+        </div>
+
+        <!-- Cameras -->
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+          </div>
+          <div class="stat-label">Cameras</div>
+          <div class="stat-value" id="s-cameras">—</div>
+          <div class="stat-sub" id="s-active-cam">— active</div>
+        </div>
+
+        <!-- Check-ins -->
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="stat-label">Today's Check-ins</div>
+          <div class="stat-value" id="s-checkins">—</div>
+          <div class="stat-sub" id="s-checkouts">— check-outs</div>
+        </div>
+
+        <!-- Recognition Accuracy -->
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-label">Recognition Accuracy</div>
+          <div class="stat-value" id="s-accuracy">—</div>
+          <div class="stat-sub">avg confidence</div>
+        </div>
+
+      </div>
+
+
+      <!-- ── Recent Activity Feed ───────────────────────────────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recent Activity</div>
+            <div class="card-sub">Auto-refreshes every 30 seconds</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn btn-outline btn-sm" id="refresh-btn" onclick="loadDashboard()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Activity feed container — populated by dashboard.js -->
+        <div id="activity-feed-wrap">
+          <div class="activity-feed" id="activity-feed">
+            <div style="text-align:center;padding:48px 20px;color:var(--text-3)">
+              <span class="spinner" style="display:inline-block;width:20px;height:20px"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden table kept for backward compatibility (same tbody id) -->
+        <div style="display:none">
+          <table><tbody id="recent-table"></tbody></table>
+        </div>
+      </div>
+
+
+      <!-- ── System Status Panel ────────────────────────────────────────── -->
+      <div class="card" style="margin-bottom:0">
+        <div class="card-header" style="margin-bottom:16px">
+          <div>
+            <div class="card-title">System Status</div>
+            <div class="card-sub">Real-time health of all services</div>
+          </div>
+          <span class="badge badge-green">All Systems Operational</span>
+        </div>
+
+        <div class="sys-status-grid">
+
+          <div class="sys-status-item">
+            <span class="sys-indicator ok"></span>
+            <span class="sys-status-label">Face Recognition Engine</span>
+            <span class="sys-status-value">Active</span>
+          </div>
+
+          <div class="sys-status-item">
+            <span class="sys-indicator ok"></span>
+            <span class="sys-status-label">Camera Connection</span>
+            <span class="sys-status-value" id="sys-cam-status">Active</span>
+          </div>
+
+          <div class="sys-status-item">
+            <span class="sys-indicator ok"></span>
+            <span class="sys-status-label">Database Connection</span>
+            <span class="sys-status-value">Active</span>
+          </div>
+
+          <div class="sys-status-item">
+            <span class="sys-indicator ok"></span>
+            <span class="sys-status-label">Attendance Service</span>
+            <span class="sys-status-value">Running</span>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

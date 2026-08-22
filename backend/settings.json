@@ -1,0 +1,19 @@
+{
+  "ai": {
+    "sensitivity": 1,
+    "confidence": 65,
+    "cooldown": 30,
+    "camera": "built-in"
+  },
+  "attendance": {
+    "checkin": "09:30",
+    "late": "09:45",
+    "checkout": "18:30",
+    "grace": 15
+  },
+  "alerts": {
+    "unknown_face": true,
+    "missed_checkout": true,
+    "daily_summary": false
+  }
+}

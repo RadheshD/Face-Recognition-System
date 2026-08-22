@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Employees — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="header">
+      <div class="header-title">Employees <span>Registration</span></div>
+      <div class="header-right">
+        <button class="btn btn-primary btn-sm" id="add-emp-btn">+ Add Employee</button>
+        <button class="admin-badge" id="admin-logout">
+          <span class="admin-dot"></span>Admin · Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="page-header-row">
+        <div class="page-header" style="margin-bottom:0">
+          <h1>Employee Registration</h1>
+          <p>Register employees and enroll their faces for recognition.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">All Employees</div>
+            <div class="card-sub" id="emp-count">Loading…</div>
+          </div>
+          <input id="search-emp" class="form-control" placeholder="Search name or code…" style="max-width:220px;margin:0"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Face</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="emp-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Employee Modal -->
+<div class="modal-backdrop" id="emp-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="emp-modal-title">Add Employee</div>
+      <button class="modal-close" onclick="closeModal('emp-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="emp-id"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Employee ID *</label>
+          <input id="emp-code" class="form-control" placeholder="EMP001"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input id="emp-name" class="form-control" placeholder="John Doe"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="emp-email" class="form-control" type="email" placeholder="john@company.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <input id="emp-dept" class="form-control" placeholder="Engineering"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Position</label>
+        <input id="emp-position" class="form-control" placeholder="Software Engineer"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('emp-modal')">Cancel</button>
+      <button class="btn btn-primary" id="save-emp-btn" onclick="saveEmployee()">Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- Face Registration Modal -->
+<div class="modal-backdrop" id="face-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Register Face</div>
+      <button class="modal-close" onclick="closeFaceModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-2);font-size:0.84rem;margin-bottom:14px">
+        Position your face clearly in the camera frame, then click Capture.
+      </p>
+      <div class="webcam-wrap" id="face-webcam-wrap">
+        <video id="face-video" playsinline muted></video>
+        <div class="webcam-status" id="face-status">Starting camera…</div>
+      </div>
+      <div id="face-result" style="margin-top:14px;display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeFaceModal()">Cancel</button>
+      <button class="btn btn-primary" id="capture-btn" onclick="captureFace()">Capture & Register</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/employees.js"></script>
+</body>
+</html>

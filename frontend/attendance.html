@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance — FaceAttend AI</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-content">
+    <header class="header">
+      <div class="header-title">Attendance <span>Live Marking</span></div>
+      <div class="header-right">
+        <div id="scan-indicator">Auto-Scanning Active</div>
+        <!-- Live face detect indicator — purely visual, no recognition logic -->
+        <div class="face-detect-indicator" id="face-detect-indicator">
+          <span class="detect-dot"></span>Detecting Face
+        </div>
+        <button class="admin-badge" id="admin-logout">
+          <span class="admin-dot"></span>Admin · Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="page-header">
+        <h1>Attendance System</h1>
+        <p>Use your webcam to mark attendance in real time.</p>
+      </div>
+
+      <!-- ══ Geofence Gate ════════════════════════════════════════════════════ -->
+      <div id="geofence-gate" class="geofence-gate">
+        <div class="gf-card">
+
+          <!-- Checking -->
+          <div id="gf-checking" class="gf-state">
+            <div class="gf-icon-wrap gf-icon-checking">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/>
+              </svg>
+            </div>
+            <div class="gf-spinner"></div>
+            <p class="gf-title">📍 Verifying your location…</p>
+            <p class="gf-sub">Please allow location access when prompted by your browser.</p>
+          </div>
+
+          <!-- Verified -->
+          <div id="gf-verified" class="gf-state" style="display:none">
+            <div class="gf-icon-wrap gf-icon-ok">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <p class="gf-title">✅ Location Verified</p>
+            <p class="gf-sub" id="gf-ok-msg">You are inside the allowed area.</p>
+            <p class="gf-hint">Starting face recognition…</p>
+          </div>
+
+          <!-- Blocked -->
+          <div id="gf-blocked" class="gf-state" style="display:none">
+            <div class="gf-icon-wrap gf-icon-blocked">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+            </div>
+            <p class="gf-title">❌ Outside Allowed Area</p>
+            <p class="gf-sub" id="gf-blocked-msg">You are outside the allowed location. Please move closer to the office.</p>
+            <button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="runGeofenceCheck()" id="gf-retry-btn">
+              ↻ Try Again
+            </button>
+          </div>
+
+          <!-- Permission Denied -->
+          <div id="gf-denied" class="gf-state" style="display:none">
+            <div class="gf-icon-wrap gf-icon-blocked">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <p class="gf-title">Location Access Required</p>
+            <p class="gf-sub">Location access is required for attendance verification. Enable it in your browser settings and reload.</p>
+            <button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="runGeofenceCheck()">
+              ↻ Retry
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <!-- ══ / Geofence Gate ═════════════════════════════════════════════════ -->
+
+      <!-- Main attendance UI — revealed after geofence passes ── -->
+      <div id="attendance-content" style="display:none">
+
+      <!-- Webcam Panel — centered -->
+      <div style="display:flex; justify-content:center; margin-bottom:20px;">
+        <div class="card" style="padding:20px; width:100%; max-width:480px;">
+          <div class="card-header" style="margin-bottom:14px">
+            <div class="card-title">Live Camera</div>
+            <button class="btn btn-outline btn-sm" id="start-cam-btn" onclick="startWebcam()">▶ Start</button>
+          </div>
+          <div class="webcam-wrap" id="att-webcam">
+            <video id="att-video" playsinline muted autoplay style="width:100%;height:100%;object-fit:cover;"></video>
+            <canvas id="att-canvas" class="webcam-overlay-canvas"></canvas>
+            <div class="scan-ring" id="scan-ring"></div>
+            <div class="webcam-status" id="att-cam-status">Click Start to activate webcam</div>
+          </div>
+          <div id="att-result" style="margin-top:14px;display:none">
+            <div id="att-result-inner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Records Panel — full width below -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Today's Records</div>
+            <div class="card-sub" id="att-count">Loading…</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadToday()">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Event</th>
+                <th>Time</th>
+                <th>Confidence</th>
+                <th>Live</th>
+              </tr>
+            </thead>
+            <tbody id="att-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      </div><!-- /attendance-content -->
+
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/attendance.js"></script>
+</body>
+</html>
