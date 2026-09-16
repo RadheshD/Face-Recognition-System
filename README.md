@@ -1,4 +1,4 @@
-# 👁️ FaceAttend AI — Autonomous Real-Time Facial Recognition Kiosk & Workforce Intelligence Platform
+#  FaceAttend AI — Autonomous Real-Time Facial Recognition Kiosk & Workforce Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -11,9 +11,9 @@
 
 ---
 
-## 🌟 Key Capabilities & Highlights
+##  Key Capabilities & Highlights
 
-* ⚡ **Zero-Click Kiosk Mode**: Continuous live camera scanning with WebRTC streaming and dynamic HTML5 `<canvas>` bounding boxes. Employees walk up to the camera and are instantly logged without touching a button.
+*  **Zero-Click Kiosk Mode**: Continuous live camera scanning with WebRTC streaming and dynamic HTML5 `<canvas>` bounding boxes. Employees walk up to the camera and are instantly logged without touching a button.
 * 🛡️ **Active Deep-Learning Liveness (Anti-Spoofing)**: Integrated `MiniFASNet` PyTorch pipeline inspects texture, depth cues, and specular reflections to defeat presentation attacks (photos, smartphone/tablet screens, cutouts, and video replays).
 * 🌓 **CLAHE Adaptive Lighting Resilience**: Enhanced image normalization using **CLAHE (Contrast Limited Adaptive Histogram Equalization)** ensures accurate facial detection under extreme lighting—direct glare, low-light corridors, or harsh background shadows.
 * 🚀 **Sub-50ms RAM Vector Cache**: Biometric face descriptors (128-D vectors) are serialized into a high-performance in-memory matrix cache (`encodings.pkl`), executing C-speed Euclidean distance matching across thousands of profiles instantly.
