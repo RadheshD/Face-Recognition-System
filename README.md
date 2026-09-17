@@ -24,7 +24,7 @@
 
 ---
 
-## 🏗️ Architecture & Processing Pipeline
+##  Architecture & Processing Pipeline
 
 ```
   +-----------------------------------------------------------------------------------+
