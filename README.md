@@ -1,4 +1,4 @@
-#  FaceAttend AI - Autonomous Real-Time Facial Recognition Kiosk & Workforce Intelligence Platform
+#  FaceAttend AI - Real-Time Facial Recognition Kiosk & Workforce Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
